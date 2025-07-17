@@ -31,5 +31,5 @@ MedVextract is an AI-powered system, to aid VetRec extracting veterinary SOAP no
 ### Backend
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/vetrec-ai-scribe.git
-   cd vetrec-ai-scribe/backend
+   git clone https://github.com/dotnetspark/medvextract.git
+   cd medextract/backend
