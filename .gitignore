@@ -58,3 +58,6 @@ secrets/
 *.key
 *.pem
 *.cert
+
+# BAML files
+baml_client/
