@@ -4,7 +4,14 @@ client<llm> CustomGPT4o {
   options {
     model "gpt-4o-mini"
     api_key env.OPENAI_API_KEY,
+    // Lower temperature for more deterministic outputs
     temperature 0.3
+     // Focus on high-probability tokens
+    top_p 0.9
+    // No penalty for repeated tokens
+    frequency_penalty 0.0
+    // Increased token limit for detailed outputs
+    max_tokens 2000
   }
 }
 

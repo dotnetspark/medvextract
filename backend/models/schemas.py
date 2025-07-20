@@ -4,9 +4,9 @@ from enum import Enum
 
 
 class Priority(str, Enum):
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
 
 
 class TaskStatus(str, Enum):
@@ -73,7 +73,7 @@ class ClientReminder(BaseModel):
     class Config:
         json_schema_extra = {"example": {
             "description": "Monitor Fluffy’s water intake closely",
-            "priority": "high",
+            "priority": "HIGH",
             "category": "lifestyle"
         }}
 
@@ -141,7 +141,7 @@ class VetOutput(BaseModel):
             }],
             "client_reminders": [{
                 "description": "Monitor Fluffy’s water intake closely",
-                "priority": "high",
+                "priority": "HIGH",
                 "category": "lifestyle"
             }],
             "vet_todos": [{
