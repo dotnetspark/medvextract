@@ -16,7 +16,7 @@ MedVextract is an AI-powered system, to aid VetRec extracting veterinary SOAP no
 ## Tech Stack
 - **Backend**: FastAPI, Python, Celery, Redis, PostgreSQL
 - **Frontend**: React, TypeScript, Material-UI
-- **AI**: BAML with Grok3 for LLM-powered extraction
+- **AI**: BAML with GPT4o-mini for LLM-powered extraction
 - **Infrastructure**: Docker, Kubernetes (optional)
 
 ## Prerequisites
