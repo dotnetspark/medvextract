@@ -3,6 +3,7 @@
     "concurrently": "^9.2.0"
   },
   "scripts": {
-    "dev": "concurrently \".venv\\Scripts\\uvicorn.exe backend.main:app --reload\" \"cd frontend && npm run dev\""
+    "dev": "concurrently \".venv\\Scripts\\uvicorn.exe backend.main:app --reload\" \"cd frontend && npm run dev\"",
+    "dev:backend": "concurrently \"uvicorn backend.main:app --reload\" \"celery -A backend.task worker --loglevel=info\""
   }
 }
