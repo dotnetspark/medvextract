@@ -8,5 +8,8 @@ interface TaskState {
 
 export const useTaskStore = create<TaskState>((set) => ({
     tasks: null,
-    setTasks: (tasks) => set({ tasks }),
+    setTasks: (tasks) => {
+        console.log('Setting tasks:', tasks);
+        set({ tasks });
+    },
 }));

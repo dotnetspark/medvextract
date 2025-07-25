@@ -1,5 +1,5 @@
 // frontend/src/App.tsx
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { Container, Typography, ThemeProvider, createTheme, Box } from '@mui/material';
 import { useTaskStore } from './store';
 import TranscriptForm from './components/TranscriptForm';
@@ -37,7 +37,8 @@ const theme = createTheme({
 });
 
 const App: React.FC = () => {
-  const [vetOutput, setVetOutput] = useState<VetOutput | null>(null);
+  const { tasks } = useTaskStore();
+  console.log('Current tasks:', tasks);
 
   return (
     <ThemeProvider theme={theme}>
@@ -50,10 +51,10 @@ const App: React.FC = () => {
             LLM-Powered Medical Visit Action Extraction System
           </Typography>
           <Box sx={{ width: '100%', maxWidth: 600, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            {!vetOutput ? (
-              <TranscriptForm onSubmit={setVetOutput} />
+            {tasks ? (
+              <TaskDisplay data={tasks} />
             ) : (
-              <TaskDisplay data={vetOutput} />
+              <TranscriptForm onSubmit={useTaskStore.getState().setTasks} />
             )}
           </Box>
         </Box>

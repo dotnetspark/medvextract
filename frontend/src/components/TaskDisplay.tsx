@@ -24,6 +24,16 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ data }) => {
     const [page, setPage] = useState(0);
     const rowsPerPage = 5;
 
+    // Destructure with default empty arrays
+    const {
+        soap_notes = [],
+        follow_up_tasks = [],
+        medication_instructions = [],
+        client_reminders = [],
+        vet_todos = [],
+        warnings = [],
+    } = data;
+
     const paginatedTasks = (arr: any[]) => arr.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
     return (
@@ -31,7 +41,7 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ data }) => {
             <Typography variant="h6" gutterBottom sx={{ color: '#003087', fontWeight: 600 }}>
                 SOAP Notes
             </Typography>
-            {data.soap_notes.map((note, index) => (
+            {soap_notes.map((note, index) => (
                 <Accordion key={index} sx={{ mb: 2, bgcolor: 'white' }}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography>{note.note_type} (Template: {note.template_id || 'Default'})</Typography>
@@ -62,7 +72,7 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ data }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {paginatedTasks(data.follow_up_tasks).map((task, index) => (
+                        {paginatedTasks(follow_up_tasks).map((task, index) => (
                             <TableRow key={index}>
                                 <TableCell>{task.description}</TableCell>
                                 <TableCell>{task.due_date || 'N/A'}</TableCell>
@@ -97,7 +107,7 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ data }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {paginatedTasks(data.medication_instructions).map((med, index) => (
+                        {paginatedTasks(medication_instructions).map((med, index) => (
                             <TableRow key={index}>
                                 <TableCell>{med.medication}</TableCell>
                                 <TableCell>{med.dosage}</TableCell>
@@ -131,7 +141,7 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ data }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {paginatedTasks(data.client_reminders).map((reminder, index) => (
+                        {paginatedTasks(client_reminders).map((reminder, index) => (
                             <TableRow key={index}>
                                 <TableCell>{reminder.description}</TableCell>
                                 <TableCell>{reminder.priority}</TableCell>
@@ -163,7 +173,7 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ data }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {paginatedTasks(data.vet_todos).map((todo, index) => (
+                        {paginatedTasks(vet_todos).map((todo, index) => (
                             <TableRow key={index}>
                                 <TableCell>{todo.description}</TableCell>
                                 <TableCell>{todo.due_date || 'N/A'}</TableCell>
@@ -188,8 +198,8 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ data }) => {
             <Paper sx={{ bgcolor: 'white' }}>
                 <Table>
                     <TableBody>
-                        {data.warnings.length ? (
-                            data.warnings.map((warning, index) => (
+                        {warnings.length ? (
+                            warnings.map((warning, index) => (
                                 <TableRow key={index}>
                                     <TableCell>{warning}</TableCell>
                                 </TableRow>

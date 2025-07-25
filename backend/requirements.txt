@@ -1,6 +1,8 @@
-fastapi==0.116.1
-uvicorn==0.35.0
-pydantic==2.11.7
-baml==0.19.1
-baml-py==0.202.1
-python-dotenv==1.1.1
+fastapi
+uvicorn
+pydantic
+baml
+baml-py
+python-dotenv
+celery
+redis
