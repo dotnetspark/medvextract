@@ -1,3 +1,4 @@
+from backend.models.database import SessionLocal, TranscriptResult
 from celery.result import AsyncResult
 from fastapi import FastAPI, HTTPException
 import logging
@@ -71,19 +72,30 @@ async def get_task_status(task_id: str):
     """Check the status of a Celery task."""
     try:
         task = AsyncResult(task_id)
-        if task.state == "PENDING":
-            logger.info(f"Task {task_id} is still processing")
-            return {"status": "processing"}
-        elif task.state == "SUCCESS":
-            result = task.result
-            logger.info(f"Task {task_id} completed successfully")
-            return {"status": "completed", "result": result}
-        elif task.state == "FAILURE":
-            logger.error(f"Task {task_id} failed: {str(task.result)}")
-            return {"status": "failed", "error": str(task.result)}
-        else:
-            logger.warning(f"Task {task_id} in unexpected state: {task.state}")
-            return {"status": task.state}
+        db = SessionLocal()
+        try:
+            db_entry = db.query(TranscriptResult).filter_by(task_id=task_id).first()
+            if not db_entry:
+                logger.error(f"No database entry found for task {task_id}")
+                raise HTTPException(
+                    status_code=404, detail=f"Task {task_id} not found in database.")
+            if task.state == "PENDING":
+                logger.info(f"Task {task_id} is still processing")
+                return {"status": "processing"}
+            elif task.state == "SUCCESS":
+                result = task.result
+                logger.info(f"Task {task_id} completed successfully")
+                return {"status": "completed", "result": result}
+            elif task.state == "FAILURE":
+                logger.error(f"Task {task_id} failed: {str(task.result)}")
+                return {"status": "failed", "error": str(task.result)}
+            else:
+                logger.warning(f"Task {task_id} in unexpected state: {task.state}")
+                return {"status": task.state}
+        finally:
+            db.close()
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error checking task status {task_id}: {str(e)}")
         raise HTTPException(

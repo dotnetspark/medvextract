@@ -6,3 +6,5 @@ baml-py
 python-dotenv
 celery
 redis
+sqlalchemy
+psycopg2-binary
