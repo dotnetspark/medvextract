@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { TextField, Button, Box, MenuItem, Select, InputLabel, FormControl, CircularProgress, Typography } from '@mui/material';
 import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import type { VetInput, VetOutput } from '../types/schemas';
 
 interface TranscriptFormProps {
@@ -12,8 +12,33 @@ const TranscriptForm: React.FC<TranscriptFormProps> = ({ onSubmit }) => {
     const [notes, setNotes] = useState('');
     const [templateId, setTemplateId] = useState('SOAP_ER');
     const [error, setError] = useState<string | null>(null);
-    const [taskId, setTaskId] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const navigate = useNavigate();
+    const { taskId } = useParams<{ taskId?: string }>();
+
+    useEffect(() => {
+        if (taskId) {
+            const fetchTranscript = async () => {
+                try {
+                    const response = await axios.get(`http://localhost:8000/task/${taskId}`);
+                    if (response.data.status === 'completed' || response.data.status === 'failed') {
+                        const db = await axios.get("http://localhost:8000/transcripts");
+                        const transcriptData = db.data.find((t: any) => t.task_id === taskId);
+                        if (transcriptData) {
+                            setTranscript(transcriptData.transcript);
+                            setNotes(transcriptData.notes || '');
+                            setTemplateId(transcriptData.metadata?.template_id || 'SOAP_ER');
+                        }
+                    }
+                } catch (err: any) {
+                    console.error('Error fetching task status:', err);
+                    setError(err.response?.data?.detail || 'Failed to fetch task status.');
+                    setIsSubmitting(false);
+                }
+            };
+            fetchTranscript();
+        }
+    }, [taskId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,7 +59,7 @@ const TranscriptForm: React.FC<TranscriptFormProps> = ({ onSubmit }) => {
             console.log('Submitting transcript:', input);
             const response = await axios.post('http://localhost:8000/extract-tasks', input);
             console.log('Submit response:', response.data);
-            setTaskId(response.data.task_id);
+            navigate('/');
         } catch (err: any) {
             console.error('Error processing transcript:', err);
             setError(err.response?.data?.detail || 'Failed to process transcript.');
@@ -43,91 +68,57 @@ const TranscriptForm: React.FC<TranscriptFormProps> = ({ onSubmit }) => {
         }
     };
 
-    useEffect(() => {
-        if (taskId) {
-            console.log('Fetching results for task:', taskId);
-            const interval = setInterval(async () => {
-                try {
-                    const response = await axios.get(`http://localhost:8000/task/${taskId}`);
-                    console.log('Task status response:', response.data);
-                    if (response.data.status === 'completed') {
-                        console.log('Task completed:', response.data);
-                        onSubmit(response.data.result as VetOutput);
-                        setTaskId(null);
-                        setIsSubmitting(false); // Only set to false after completion
-                        clearInterval(interval);
-                    } else if (response.data.status === 'failed') {
-                        setError(`Task failed: ${response.data.error}`);
-                        setTaskId(null);
-                        setIsSubmitting(false); // Only set to false after failure
-                        clearInterval(interval);
-                    }
-                    else {
-                        console.log('Task still in progress:', response.data.status);
-                        // Do not set isSubmitting to false here
-                    }
-                } catch (err: any) {
-                    console.error('Error fetching task status:', err);
-                    setError(err.response?.data?.detail || 'Failed to fetch task status.');
-                    setTaskId(null);
-                    setIsSubmitting(false); // Only set to false after error
-                    clearInterval(interval);
-                }
-            }, 2000); // Poll every 2 seconds
-            return () => clearInterval(interval); // Cleanup interval on unmount
-        }
-    }, [taskId, onSubmit]);
-
     return (
-        <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4, bgcolor: 'white', p: 3, borderRadius: 2 }}>
-            <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>SOAP Template</InputLabel>
-                <Select
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-8 max-w-xl mx-auto mb-8">
+            <div className="mb-4">
+                <label htmlFor="templateId" className="block text-blue-900 font-semibold mb-2">SOAP Template</label>
+                <select
+                    id="templateId"
                     value={templateId}
                     onChange={(e) => setTemplateId(e.target.value)}
-                    label="SOAP Template"
-                    sx={{ bgcolor: 'white' }}
+                    className="w-full bg-white border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                    <MenuItem value="SOAP_ER">Emergency SOAP</MenuItem>
-                    <MenuItem value="SOAP_GP">General Practice SOAP</MenuItem>
-                    <MenuItem value="DISCHARGE">Discharge Note</MenuItem>
-                </Select>
-            </FormControl>
-            <TextField
-                label="Consult Transcript"
-                multiline
-                rows={6}
-                fullWidth
-                value={transcript}
-                onChange={(e) => setTranscript(e.target.value)}
-                margin="normal"
-                required
-                sx={{ bgcolor: 'white' }}
-            />
-            <TextField
-                label="Additional Notes"
-                multiline
-                rows={2}
-                fullWidth
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                margin="normal"
-                sx={{ bgcolor: 'white' }}
-            />
-            <Button
+                    <option value="SOAP_ER">Emergency SOAP</option>
+                    <option value="SOAP_GP">General Practice SOAP</option>
+                    <option value="DISCHARGE">Discharge Note</option>
+                </select>
+            </div>
+            <div className="mb-4">
+                <label htmlFor="transcript" className="block text-blue-900 font-semibold mb-2">Consult Transcript</label>
+                <textarea
+                    id="transcript"
+                    rows={6}
+                    value={transcript}
+                    onChange={(e) => setTranscript(e.target.value)}
+                    required
+                    className="w-full bg-white border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+            </div>
+            <div className="mb-4">
+                <label htmlFor="notes" className="block text-blue-900 font-semibold mb-2">Additional Notes</label>
+                <textarea
+                    id="notes"
+                    rows={2}
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="w-full bg-white border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+            </div>
+            <button
                 type="submit"
-                variant="contained"
                 disabled={isSubmitting}
-                sx={{ bgcolor: '#007bff', '&:hover': { bgcolor: '#005bff' }, mt: 2 }}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition disabled:opacity-50 mt-2 flex items-center justify-center"
             >
-                {isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'Generate Notes & Tasks'}
-            </Button>
+                {isSubmitting ? (
+                    <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+                ) : 'Generate Notes & Tasks'}
+            </button>
             {error && (
-                <Typography color="error.main" mt={2}>
+                <div className="text-red-600 bg-red-50 border border-red-200 rounded-lg p-3 mt-4 text-center">
                     {error}
-                </Typography>
+                </div>
             )}
-        </Box>
+        </form>
     );
 };
 

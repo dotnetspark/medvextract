@@ -1,65 +1,78 @@
 // frontend/src/App.tsx
-import React, { use, useState } from 'react';
-import { Container, Typography, ThemeProvider, createTheme, Box } from '@mui/material';
-import { useTaskStore } from './store';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import Transcript from './components/Transcript';
 import TranscriptForm from './components/TranscriptForm';
 import TaskDisplay from './components/TaskDisplay';
-import type { VetOutput } from './types/schemas';
+import { useTaskStore } from './store';
 
-const theme = createTheme({
-  palette: {
-    primary: { main: '#007bff' }, // VetRec blue
-    background: { default: '#f5faff' }, // Light blue background
-  },
-  typography: {
-    fontFamily: "'Inter', sans-serif",
-    h4: { color: '#003087', fontWeight: 700 },
-    h6: { color: '#003087', fontWeight: 600 },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          borderRadius: 8,
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          borderRadius: 8,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        },
-      },
-    },
-  },
-});
+const SPLASH_TEXT = `MedVextract is an AI-powered system to aid VetRec extracting veterinary SOAP notes, follow-up tasks, medication instructions, client reminders, and veterinarian to-dos from consult transcripts. Built with BAML for LLM-powered extraction, FastAPI for the backend, and React for the frontend, it supports Practice Management System (PiMS) integration (e.g., Ezyvet), HIPAA/SOC 2 compliance, and scalability for multi-clinic veterinary practices.`;
 
-const App: React.FC = () => {
-  const { tasks } = useTaskStore();
-  console.log('Current tasks:', tasks);
+const Splash: React.FC<{ onFinish: () => void; fadeOut: boolean }> = ({ onFinish, fadeOut }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onFinish();
+    }, fadeOut ? 700 : 3000); // 700ms for fade-out, 3s for initial display
+    return () => clearTimeout(timer);
+  }, [onFinish, fadeOut]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container maxWidth={false} disableGutters sx={{ width: '100vw', height: '100vh', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', bgcolor: '#f5faff', m: 0, p: 0 }}>
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-          <Typography variant="h4" gutterBottom align="center">
-            Medvextract
-          </Typography>
-          <Typography variant="body1" align="center" sx={{ mb: 4, color: '#003087' }}>
-            LLM-Powered Medical Visit Action Extraction System
-          </Typography>
-          <Box sx={{ width: '100%', maxWidth: 600, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            {tasks ? (
-              <TaskDisplay data={tasks} />
-            ) : (
-              <TranscriptForm onSubmit={useTaskStore.getState().setTasks} />
-            )}
-          </Box>
-        </Box>
-      </Container>
-    </ThemeProvider>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-blue-50 bg-opacity-100 ${fadeOut ? 'animate-fade-out' : 'animate-fade-in'}`}>
+      <div className="max-w-2xl mx-auto p-8 rounded-2xl shadow-xl border border-blue-100 text-center">
+        <Link to="/" className="text-4xl font-extrabold text-blue-900 mb-4 block hover:underline">Medvextract</Link>
+        <p className="text-lg text-blue-800 leading-relaxed mt-2">{SPLASH_TEXT}</p>
+      </div>
+    </div>
+  );
+};
+
+const App: React.FC = () => {
+  const { setTasks } = useTaskStore();
+  const [showSplash, setShowSplash] = useState(true);
+  const [fadeOutSplash, setFadeOutSplash] = useState(false);
+  const location = window.location.pathname;
+
+  useEffect(() => {
+    if (location !== '/') {
+      setShowSplash(false);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (fadeOutSplash) {
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+        setFadeOutSplash(false);
+        window.history.replaceState({}, '', '/');
+      }, 700); // match fade-out duration
+      return () => clearTimeout(timer);
+    }
+  }, [fadeOutSplash]);
+
+  const handleSplashFinish = () => {
+    setFadeOutSplash(true);
+  };
+
+  return (
+    <Router>
+      {showSplash && location === '/' && <Splash onFinish={handleSplashFinish} fadeOut={fadeOutSplash} />}
+      {!showSplash && (
+        <div className="min-h-screen w-full bg-blue-50 flex flex-col items-center justify-start py-8">
+          <header className="w-full max-w-5xl mx-auto px-4 mb-8">
+            <Link to="/" className="text-4xl font-extrabold text-blue-900 text-center mb-2 block hover:underline">Medvextract</Link>
+            <p className="text-lg text-blue-800 text-center mb-4">LLM-Powered Medical Visit Action Extraction System</p>
+          </header>
+          <main className="w-full px-4 flex-1" style={{ marginLeft: 10, marginRight: 10 }}>
+            <Routes>
+              <Route path="/" element={<Transcript />} />
+              <Route path='/transcript-form' element={<TranscriptForm onSubmit={setTasks} />} />
+              <Route path='/transcript-form/:taskId' element={<TranscriptForm onSubmit={setTasks} />} />
+              <Route path="/task-display/:taskId" element={<TaskDisplay />} />
+            </Routes>
+          </main>
+        </div>
+      )}
+    </Router>
   );
 };
 
