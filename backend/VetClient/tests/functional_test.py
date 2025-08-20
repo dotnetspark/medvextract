@@ -8,14 +8,12 @@ import asyncio
 test_input = VetInput(
     transcript="Dr. Kim: Bella’s limping today. I’ll prescribe Rimadyl. Come back in 5 days.",
     notes="Schedule recheck for Bella.",
-    metadata={
-        "patient_id": "PET12345",
-        "consult_date": "2025-07-18",
-        "veterinarian_id": "VET789",
-        "clinic_id": "CLIN321",
-        "template_id": "SOAP_ER",
-        "language": "en"
-    }
+    patient_id="PET12345",
+    consult_date="2025-07-18",
+    veterinarian_id="VET789",
+    clinic_id="CLIN321",
+    template_id="SOAP_ER",
+    language="en"
 )
 
 

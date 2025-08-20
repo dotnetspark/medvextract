@@ -2,16 +2,12 @@
 class VetInput {
   transcript string // Veterinary consult dialogue
   notes string? // Optional clinician notes
-  metadata VetMetadata // Metadata as a separate class
-}
-
-class VetMetadata {
-  patient_id string? // Pet ID
-  consult_date string? // ISO 8601
-  veterinarian_id string?
-  clinic_id string? // For multi-clinic enterprises
-  template_id string? // Selected SOAP template
-  language string? // e.g., "en", "es" for multilingual support
+  patient_id string // Pet ID
+  consult_date string // ISO 8601
+  veterinarian_id string
+  clinic_id string // For multi-clinic enterprises
+  template_id string // Selected SOAP template
+  language string // e.g., "en", "es" for multilingual support
 }
 
 // Enums for veterinary-specific fields
@@ -102,31 +98,39 @@ class VetOutput {
 function ExtractVetTasks(input: VetInput) -> VetOutput {
   client CustomGPT4o
   prompt #"
-    You are an AI veterinary scribe, like VetRec, tasked with analyzing a veterinary consult transcript and optional notes to generate structured outputs, including SOAP notes, tasks, and reminders. Your goal is to:
+    You are an AI veterinary scribe, like VetRec, tasked with analyzing a veterinary consult transcript and optional notes to generate structured outputs, including SOAP notes, tasks, and reminders.
 
-    1. **SOAP Notes**: Generate veterinary SOAP notes (Subjective, Objective, Assessment, Plan) and optional discharge summaries in client-friendly language, using the specified template_id if provided.
-    2. **Follow-up Tasks**: Extract actions like scheduling appointments or diagnostics.
-    3. **Medication Instructions**: Extract medication details, including veterinary-specific routes (e.g., subcutaneous).
-    4. **Client-Facing Reminders**: Extract owner actions, categorized by type.
-    5. **Vet To-Dos**: Extract veterinarian tasks, like PiMS exports or referrals.
-    6. **Warnings**: Flag ambiguous or incomplete data.
+    ## Goals
+    1. **SOAP Notes** – Produce Subjective, Objective, Assessment, and Plan sections, plus optional Discharge Summaries for owners, in the specified template and language.
+    2. **Follow-up Tasks** – Identify specific actions such as scheduling diagnostics or procedures.
+    3. **Medication Instructions** – List prescribed medications with dosage, route, frequency, and other pertinent details.
+    4. **Client-Facing Reminders** – Owner instructions, categorized by priority and type.
+    5. **Vet To-Dos** – Internal clinician/admin actions (e.g., PiMS exports, referrals).
+    6. **Warnings** – Flag any ambiguous, incomplete, or inconsistent data.
 
-    **Instructions**:
-    - Analyze the transcript (`{{ input.transcript }}`) and notes (`{{ input.notes or 'None' }}`).
-    - Use metadata (`{{ input.metadata }}`) for context (e.g., patient_id, template_id, language).
-    - Generate SOAP notes in the specified language (default: English) with veterinary terminology for professional notes and layman terms for discharge summaries.
-    - Categorize tasks strictly; if ambiguous, choose the most specific category and add a warning.
-    - Use ISO 8601 for due dates, estimating from phrases like 'next week' using consult_date.
-    - Set status to 'PENDING' unless specified.
-    - Support PiMS integration by flagging exportable tasks.
-    - Return empty lists for categories with no items.
+    ## Instructions
+    - Analyze the full transcript text:
+      Transcript: `{{ input.transcript }}`
+    - Use supplementary clinician notes if available:
+      Notes: `{{ input.notes or 'None' }}`
+    - Use the following **context fields** directly for grounding:
+      • Patient ID: {{ input.patient_id }}
+      • Consult Date: {{ input.consult_date }}
+      • Veterinarian ID: {{ input.veterinarian_id }}
+      • Clinic ID: {{ input.clinic_id }}
+      • Template ID: {{ input.template_id }}
+      • Language: {{ input.language or 'en' }}
 
-    **Input**:
-    Transcript: {{ input.transcript }}
-    Notes: {{ input.notes or 'None' }}
-    Metadata: {{ input.metadata }}
+    - Generate SOAP notes in the target language (default: English), ensuring:
+      • Veterinary-accurate terminology for professional sections.
+      • Layman-friendly terms for discharge summaries.
+    - Categorize all tasks precisely. If ambiguous, choose the most specific category and note it under Warnings.
+    - For due dates, convert relative terms like “next week” into ISO 8601 format based on `consult_date`.
+    - Set task statuses to `"PENDING"` unless explicitly stated.
+    - Retain empty arrays (`[]`) for any list fields with no items.
+    - If any needed context is missing from the structured fields, default to `"Unknown"` rather than fabricating data.
 
-    **Output Format**:
+    ## Output Format
     {{ ctx.output_format }}
   "#
 }

@@ -1,69 +1,57 @@
-# React + TypeScript + Vite
+# MedVextract Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend for MedVextract, an AI-powered veterinary visit action extraction system. It is built with React, TypeScript, Vite, Zustand, and Tailwind CSS for a modern, responsive UI.
 
-Currently, two official plugins are available:
+## Features
+- Modern React + TypeScript + Vite setup
+- Tailwind CSS for utility-first styling
+- Responsive transcript table with horizontal scroll
+- Splash screen with fade-in/fade-out animation
+- Conditional rendering for MedVextract description
+- Routing for transcript list, transcript form, and task display
+- State management with Zustand
+- API integration with FastAPI backend
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Folder Structure
+- `src/` - Main source code
+  - `components/Transcript.tsx` - Transcript table and UI
+  - `components/TranscriptForm.tsx` - Transcript form
+  - `components/TaskDisplay.tsx` - Task display page
+  - `App.tsx` - Main app, splash screen, routing
+  - `store/` - Zustand state management
+  - `index.css` - Tailwind and custom styles
+- `public/` - Static assets
 
-## Expanding the ESLint configuration
+## Styling
+- Uses Tailwind CSS for all UI components
+- Splash screen and transitions use custom keyframes in `index.css`
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Development
+1. Install dependencies:
+   ```sh
+   npm install
+   ```
+2. Start the development server:
+   ```sh
+   npm run dev
+   ```
+3. The app runs at `http://localhost:5173` by default.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## API
+- The frontend expects a FastAPI backend running at `http://localhost:8000`
+- Transcript data is fetched from `/transcripts` endpoint
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## Customization
+- To adjust table or container width/margins, edit the relevant Tailwind classes in `Transcript.tsx` and `App.tsx`
+- Splash screen text and behavior can be changed in `App.tsx`
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Technologies
+- React
+- TypeScript
+- Vite
+- Zustand
+- Tailwind CSS
+- FastAPI (backend)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## License
+See the root LICENSE file for details.

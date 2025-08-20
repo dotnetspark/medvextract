@@ -2,9 +2,14 @@ fastapi
 uvicorn
 pydantic
 baml
-baml-py
+baml-py==0.205.0
 python-dotenv
 celery
 redis
 sqlalchemy
 psycopg2-binary
+asyncpg
+tenacity
+pybreaker
+tornado
+python-multipart
