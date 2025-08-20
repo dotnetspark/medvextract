@@ -51,9 +51,15 @@ const Transcripts: React.FC = () => {
 
     const { query } = useTaskStore();
 
+
     useEffect(() => {
         fetchData();
     }, []);
+
+    // Debug drawer state
+    useEffect(() => {
+        console.log("Drawer open:", drawerOpen, "Editing:", editing);
+    }, [drawerOpen, editing]);
 
     useEffect(() => {
         if (editing) {
@@ -123,6 +129,7 @@ const Transcripts: React.FC = () => {
             await fetchData();
             setDrawerOpen(false);
             setEditing(null);
+            console.log("Drawer closed after submit");
         } catch (err: any) {
             console.error("Error submitting form:", err);
             setError(err.response?.data?.detail || "Failed to submit transcript.");
@@ -183,6 +190,7 @@ const Transcripts: React.FC = () => {
                     setDrawerOpen(false);
                     setEditing(null);
                     setError(null);
+                    console.log("Drawer closed by onClose");
                 }}
                 onSubmit={handleSubmit}
                 isSaving={isSubmitting}

@@ -21,10 +21,12 @@ export const EntityDrawer: React.FC<EntityDrawerProps> = ({
 
     return (
         <div className="fixed inset-0 z-50 flex">
+            {/* Overlay with lower z-index */}
             <div
-                className="fixed inset-0 bg-black bg-opacity-30"
+                className="fixed inset-0 bg-black bg-opacity-30 z-40"
             />
-            <div className="ml-auto w-full sm:w-[420px] bg-white h-full shadow-2xl flex flex-col">
+            {/* Drawer content with higher z-index */}
+            <div className="ml-auto w-full sm:w-[420px] bg-white h-full shadow-2xl flex flex-col z-50 relative">
                 {/* Header */}
                 <div className="px-6 py-4 border-b bg-gray-50 flex items-center justify-between sticky top-0">
                     <h2 className="text-xl font-bold">{title}</h2>
