@@ -29,3 +29,9 @@
 .animate-fade-out {
     animation: fadeOut 0.7s;
 }
+
+html,
+body {
+    min-width: 390px;
+    /* iPhone 14 width in px */
+}
